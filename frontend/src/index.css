@@ -86,22 +86,22 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    @apply dark:bg-black bg-zinc-100;
+    background-color: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply dark:bg-white/10 bg-black/10 rounded-full;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    @apply dark:bg-white/20 bg-black/20;
-  }
-
-  /* ── Native date/select styling ─────────────────────────────────────────── */
-  input[type="date"]::-webkit-calendar-picker-indicator {
-    @apply dark:filter dark:invert opacity-40 cursor-pointer;
+    background-color: var(--primary-accent);
+    opacity: 0.2;
+    border-radius: 99px;
   }
 
-  select option {
-    @apply dark:bg-zinc-900 bg-white dark:text-zinc-100 text-zinc-900;
+  /* Force Green Mode Structural Soul */
+  html.green body {
+    background-color: #022c22 !important;
+    color: #ecfdf5 !important;
+  }
+  
+  html.green .dark\:bg-black {
+    background-color: #022c22 !important;
   }
 }
 

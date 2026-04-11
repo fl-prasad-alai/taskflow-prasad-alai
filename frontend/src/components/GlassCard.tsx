@@ -60,8 +60,8 @@ export default function GlassCard({
         scale: 1.015,
         boxShadow:
           '0 20px 60px rgba(0,0,0,0.65), ' +
-          '0 0 0 1px rgba(139,92,246,0.3), ' +
-          '0 0 48px rgba(139,92,246,0.1)',
+          '0 0 0 1px var(--primary-accent), ' +
+          '0 0 48px var(--glow-color)',
         transition: HOVER_SPRING,
       } : undefined}
 

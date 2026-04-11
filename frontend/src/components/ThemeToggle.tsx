@@ -12,7 +12,7 @@ export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="relative group p-1.5 w-[160px] h-[48px] rounded-full bg-white/40 dark:bg-white/5 border border-white/10 backdrop-blur-2xl shadow-2xl flex items-center justify-between overflow-hidden">
+    <div className="relative group p-1.5 w-[160px] h-[48px] rounded-full bg-white/40 dark:bg-white/5 border border-white/10 backdrop-blur-2xl shadow-2xl flex items-center justify-between overflow-hidden touch-none active:scale-[0.98] transition-transform">
       {/* The Glow Orb (Sliding persistent element) */}
       <motion.div
         className="absolute h-9 w-10 btn-glow rounded-full z-0"

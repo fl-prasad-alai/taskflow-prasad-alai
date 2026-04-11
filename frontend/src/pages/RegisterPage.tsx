@@ -95,7 +95,8 @@ export default function RegisterPage() {
     <div className="relative min-h-screen flex flex-col dark:bg-black bg-zinc-50 overflow-hidden">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-glow-radial dark:bg-glow-radial bg-glow-radial-light" />
 
-      <div className="absolute top-4 right-4 z-20">
+      {/* Theme Toggle Capsule - Responsive Positioning */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 sm:top-8 sm:right-8 sm:bottom-auto sm:left-auto sm:translate-x-0 z-50 transition-all duration-500 scale-[0.85] sm:scale-100">
         <ThemeToggle />
       </div>
 

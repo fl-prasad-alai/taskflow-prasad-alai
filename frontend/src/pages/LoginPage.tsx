@@ -126,8 +126,8 @@ export default function LoginPage() {
     <div className={`relative min-h-screen overflow-x-hidden font-sans transition-colors duration-500 ${isGreen ? 'bg-[#022c22] text-[#ecfdf5]' : 'bg-slate-50 dark:bg-black text-zinc-900 dark:text-zinc-100'}`}>
       <CinematicBackground />
 
-      {/* Theme Toggle Capsule */}
-      <div className="fixed top-8 right-8 z-50">
+      {/* Theme Toggle Capsule - Responsive Positioning */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 sm:top-8 sm:right-8 sm:bottom-auto sm:left-auto sm:translate-x-0 z-50 transition-all duration-500 scale-[0.85] sm:scale-100">
         <ThemeToggle />
       </div>
 

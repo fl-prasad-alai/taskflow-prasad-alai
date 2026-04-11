@@ -12,6 +12,7 @@ import TasksChart from '../components/TasksChart';
 import type { Task, TaskStatus, UserSummary } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from '../components/Navbar';
+import { useTheme } from '../contexts/ThemeContext';
 import GlassCard from '../components/GlassCard';
 import TaskCard from '../components/TaskCard';
 import TaskModal, { type TaskFormData } from '../components/TaskModal';
@@ -106,7 +107,8 @@ export default function ProjectDetailPage() {
   const { id: projectId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const qc = useQueryClient();
+  const qc       = useQueryClient();
+  const { theme } = useTheme();
 
   const [statusFilter,   setStatusFilter]   = useState<string>('');
   const [assigneeFilter, setAssigneeFilter] = useState<string>('');
@@ -227,7 +229,7 @@ export default function ProjectDetailPage() {
   );
 
   return (
-    <div className="min-h-screen dark:bg-black bg-zinc-50">
+    <div className={`min-h-screen transition-colors duration-500 ${theme === 'green' ? 'bg-[#022c22]' : 'dark:bg-black bg-zinc-50'}`}>
       <Navbar />
 
       {/* Ambient glow */}
