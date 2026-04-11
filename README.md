@@ -14,6 +14,10 @@
 | :---: | :---: | :---: |
 | ![Mobile Layout](./screenshots/mobile-view.png) | ![Login View](./screenshots/login-view.png) | ![Toggle Close-up](./screenshots/toggle-capsule.png) |
 
+### 🎬 Holographic Walkthrough
+A dynamic preview of the Biophilic Vanguard ecosystem, showcasing seamless theme transitions and project orchestration.
+![Vanguard Demo Walkthrough](./screenshots/demo-recording.webp)
+
 ---
 
 ## 🚀 Running Locally
