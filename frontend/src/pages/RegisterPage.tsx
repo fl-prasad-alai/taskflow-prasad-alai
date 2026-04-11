@@ -1,11 +1,62 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { User, Mail, Lock, ArrowRight, LayoutGrid } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ApiError } from '../lib/api';
+import ThemeToggle from '../components/ThemeToggle';
+
+const FADE_UP = {
+  hidden: { opacity: 0, y: 16 },
+  show:   { opacity: 1, y: 0,  transition: { type: 'spring', stiffness: 300, damping: 28 } },
+};
+const STAGGER = { show: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } } };
+
+function Field({
+  label, icon: Icon, type, value, onChange, autoComplete, placeholder, error,
+}: {
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  type: string;
+  value: string;
+  onChange: (v: string) => void;
+  autoComplete?: string;
+  placeholder: string;
+  error?: string;
+}) {
+  return (
+    <motion.div variants={FADE_UP}>
+      <label className="block text-xs font-medium dark:text-zinc-400 text-zinc-600 mb-1.5 uppercase tracking-wider">
+        {label}
+      </label>
+      <div className="relative">
+        <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 dark:text-zinc-600 text-zinc-400 pointer-events-none" />
+        <input
+          type={type}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          autoComplete={autoComplete}
+          className={`
+            w-full pl-9 pr-4 py-2.5 rounded-xl text-sm
+            dark:bg-white/[.04] bg-zinc-50
+            dark:text-zinc-100 text-zinc-900
+            dark:placeholder-zinc-600 placeholder-zinc-400
+            focus:outline-none focus:ring-2 transition-colors
+            ${error
+              ? 'border border-red-500/50 focus:ring-red-500/40'
+              : 'dark:border dark:border-white/[.08] border border-black/[.08] focus:ring-violet-500/50'}
+          `}
+          placeholder={placeholder}
+        />
+      </div>
+      {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+    </motion.div>
+  );
+}
 
 export default function RegisterPage() {
   const { register } = useAuth();
-  const navigate = useNavigate();
+  const navigate     = useNavigate();
 
   const [name, setName]         = useState('');
   const [email, setEmail]       = useState('');
@@ -19,16 +70,13 @@ export default function RegisterPage() {
     setFieldErrors({});
     setFormError('');
 
-    const errors: Record<string, string> = {};
-    if (!name.trim())         errors.name     = 'Name is required';
-    if (!email.trim())        errors.email    = 'Email is required';
-    else if (!email.includes('@')) errors.email = 'Enter a valid email';
-    if (password.length < 8) errors.password = 'Password must be at least 8 characters';
+    const errs: Record<string, string> = {};
+    if (!name.trim())          errs.name     = 'Name is required';
+    if (!email.trim())         errs.email    = 'Email is required';
+    else if (!email.includes('@')) errs.email = 'Enter a valid email';
+    if (password.length < 8)  errs.password = 'Minimum 8 characters';
 
-    if (Object.keys(errors).length) {
-      setFieldErrors(errors);
-      return;
-    }
+    if (Object.keys(errs).length) { setFieldErrors(errs); return; }
 
     setLoading(true);
     try {
@@ -40,63 +88,106 @@ export default function RegisterPage() {
       } else {
         setFormError('Something went wrong. Please try again.');
       }
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
-  const field = (label: string, id: string, type: string, value: string, onChange: (v: string) => void, placeholder: string, autoComplete?: string) => (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
-      <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        autoComplete={autoComplete}
-        className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-          fieldErrors[id] ? 'border-red-400' : 'border-slate-300'
-        }`}
-        placeholder={placeholder}
-      />
-      {fieldErrors[id] && <p className="text-xs text-red-600 mt-1">{fieldErrors[id]}</p>}
-    </div>
-  );
-
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-slate-200 p-8">
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-slate-900">TaskFlow</h1>
-          <p className="text-sm text-slate-500 mt-1">Create your account</p>
-        </div>
+    <div className="relative min-h-screen flex flex-col dark:bg-black bg-zinc-50 overflow-hidden">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-glow-radial dark:bg-glow-radial bg-glow-radial-light" />
 
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          {field('Name', 'name', 'text', name, setName, 'Jane Doe', 'name')}
-          {field('Email', 'email', 'email', email, setEmail, 'you@example.com', 'email')}
-          {field('Password', 'password', 'password', password, setPassword, '8+ characters', 'new-password')}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
 
-          {formError && (
-            <div className="bg-red-50 text-red-700 text-sm rounded-lg px-3 py-2">
-              {formError}
-            </div>
-          )}
+      <div className="flex-1 flex items-center justify-center px-4 py-16">
+        <motion.div
+          variants={STAGGER}
+          initial="hidden"
+          animate="show"
+          className="w-full max-w-sm"
+        >
+          {/* Logo */}
+          <motion.div variants={FADE_UP} className="flex items-center gap-2 justify-center mb-8">
+            <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-violet-500/20 border border-violet-500/30">
+              <LayoutGrid className="w-4 h-4 text-violet-400" />
+            </span>
+            <span className="text-xl font-bold dark:text-zinc-100 text-zinc-900">
+              Task<span className="text-violet-400">Flow</span>
+            </span>
+          </motion.div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors mt-2"
+          {/* Card */}
+          <motion.div
+            variants={FADE_UP}
+            className="
+              relative overflow-hidden rounded-2xl
+              dark:bg-white/[.03] bg-white
+              dark:border dark:border-white/[.08] border border-black/[.06]
+              dark:shadow-glass shadow-card-light
+              p-8
+            "
           >
-            {loading ? 'Creating account…' : 'Create Account'}
-          </button>
-        </form>
+            <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-        <p className="text-center text-sm text-slate-500 mt-6">
-          Already have an account?{' '}
-          <Link to="/login" className="text-blue-600 hover:underline font-medium">
-            Sign in
-          </Link>
-        </p>
+            <motion.h1 variants={FADE_UP} className="text-lg font-semibold dark:text-zinc-100 text-zinc-900 mb-1">
+              Create account
+            </motion.h1>
+            <motion.p variants={FADE_UP} className="text-sm dark:text-zinc-500 text-zinc-500 mb-6">
+              Start managing your projects
+            </motion.p>
+
+            <form onSubmit={handleSubmit} noValidate className="space-y-3">
+              <Field label="Name"     icon={User} type="text"     value={name}     onChange={setName}     autoComplete="name"         placeholder="Jane Doe"         error={fieldErrors.name} />
+              <Field label="Email"    icon={Mail} type="email"    value={email}    onChange={setEmail}    autoComplete="email"        placeholder="you@example.com"  error={fieldErrors.email} />
+              <Field label="Password" icon={Lock} type="password" value={password} onChange={setPassword} autoComplete="new-password" placeholder="8+ characters"    error={fieldErrors.password} />
+
+              {formError && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2"
+                >
+                  {formError}
+                </motion.div>
+              )}
+
+              <motion.div variants={FADE_UP} className="pt-1">
+                <motion.button
+                  type="submit"
+                  disabled={loading}
+                  whileTap={{ scale: 0.97, transition: { type: 'spring', stiffness: 600, damping: 35 } }}
+                  className="
+                    w-full flex items-center justify-center gap-2
+                    py-2.5 rounded-xl text-sm font-semibold
+                    bg-violet-600 hover:bg-violet-500 text-white
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                    shadow-glow-violet transition-colors duration-200
+                  "
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <motion.span
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                        className="block w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                      />
+                      Creating…
+                    </span>
+                  ) : (
+                    <>Create Account <ArrowRight className="w-4 h-4" /></>
+                  )}
+                </motion.button>
+              </motion.div>
+            </form>
+          </motion.div>
+
+          <motion.p variants={FADE_UP} className="text-center text-sm dark:text-zinc-600 text-zinc-500 mt-5">
+            Already have an account?{' '}
+            <Link to="/login" className="text-violet-400 hover:text-violet-300 font-medium transition-colors">
+              Sign in
+            </Link>
+          </motion.p>
+        </motion.div>
       </div>
     </div>
   );
