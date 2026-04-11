@@ -65,9 +65,10 @@ export default {
       },
 
       animation: {
-        shimmer:     'shimmer 2.4s linear infinite',
+        shimmer:      'shimmer 2.4s linear infinite',
         'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
-        'fade-up':   'fade-up 0.4s ease forwards',
+        'fade-up':    'fade-up 0.4s ease forwards',
+        float:        'float 6s ease-in-out infinite',
       },
 
       keyframes: {
@@ -82,6 +83,10 @@ export default {
         'fade-up': {
           from: { opacity: '0', transform: 'translateY(10px)' },
           to:   { opacity: '1', transform: 'translateY(0)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%':      { transform: 'translateY(-10px)' },
         },
       },
 

@@ -8,6 +8,7 @@ import {
   CheckCircle2, Clock, Circle,
 } from 'lucide-react';
 import { projectsApi, tasksApi, usersApi } from '../lib/api';
+import TasksChart from '../components/TasksChart';
 import type { Task, TaskStatus, UserSummary } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from '../components/Navbar';
@@ -338,6 +339,9 @@ export default function ProjectDetailPage() {
           </motion.div>
         </motion.div>
 
+        {/* ── Charts (status donut + priority bars) ───────────────────────── */}
+        {tasks.length > 0 && <TasksChart tasks={tasks} />}
+
         {/* ── Filter bar ───────────────────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -487,7 +491,7 @@ export default function ProjectDetailPage() {
         open={editProjectOpen}
         project={project}
         onClose={() => setEditProjectOpen(false)}
-        onSave={async (name, description) => updateProject.mutateAsync({ name, description })}
+        onSave={async (name, description) => { await updateProject.mutateAsync({ name, description }); }}
       />
 
       <AnimatePresence>

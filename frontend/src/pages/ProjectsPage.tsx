@@ -176,7 +176,7 @@ export default function ProjectsPage() {
       <ProjectModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSave={async (name, description) => createMutation.mutateAsync({ name, description })}
+        onSave={async (name, description) => { await createMutation.mutateAsync({ name, description }); }}
       />
     </div>
   );
