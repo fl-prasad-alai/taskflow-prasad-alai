@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useMotionValue, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { 
   LayoutGrid, 
   Mail, 
@@ -249,9 +249,16 @@ export default function LoginPage() {
                   </motion.button>
                 </form>
 
-                <div className="mt-8 text-center pt-8 border-t border-white/5">
+                <div className="mt-8 text-center pt-8 border-t border-white/5 space-y-4">
                   <p className="text-zinc-500 text-xs">
                     Vanguard System Access <span className="mx-2 opacity-30">|</span> 128-bit Encryption
+                  </p>
+                  
+                  <p className="text-sm dark:text-zinc-400 text-zinc-600">
+                    New to TaskFlow?{' '}
+                    <Link to="/register" className={`font-bold hover:underline transition-colors ${isGreen ? 'text-emerald-500' : 'text-[#e11d48]'}`}>
+                      Create an account
+                    </Link>
                   </p>
                 </div>
               </div>
