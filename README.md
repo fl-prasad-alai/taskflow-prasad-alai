@@ -1,12 +1,18 @@
 # TaskFlow — Engineering Take-Home Assignment
 ### Mid-level Engineer · Full Stack / Frontend / Backend
 
-## 📸 Implementation Preview (Original App Screenshots)
-| **"Eco-Obsidian" Login** | **Biophilic Dashboard** |
-| :---: | :---: |
-| ![Login View](./screenshots/login-view.png) | ![Green Mode Dashboard](./screenshots/green-mode.png) |
-| **Project Detail View** | **Mobile Floating Navigation** |
-| ![Project Detail](./screenshots/project-detail.png) | ![Mobile Layout](./screenshots/mobile-view.png) |
+## 📸 Implementation Preview (The "Biophilic Vanguard")
+
+### 🖥️ Desktop Experience (Dual-Theme Orchestration)
+| **"Greening India" (Emerald Mode)** | **"Obsidian Night" (Dark Mode)** |
+| :--- | :--- |
+| ![Green Mode Dashboard](./screenshots/green-mode.png) | ![Dark Mode Dashboard](./screenshots/dark-mode.png) |
+| ![Green Mode Detail](./screenshots/project-detail.png) | ![Dark Mode Detail](./screenshots/dark-mode-detail.png) |
+
+### 📱 Mobile & Micro-Interactions
+| **Ergonomic Floating Pill** | **Eco-Obsidian Login** | **Tri-State Glow Capsule** |
+| :---: | :---: | :---: |
+| ![Mobile Layout](./screenshots/mobile-view.png) | ![Login View](./screenshots/login-view.png) | ![Toggle Close-up](./screenshots/toggle-capsule.png) |
 
 ---
 
@@ -29,9 +35,9 @@ docker exec -i [db-container-id] psql -U taskflow -d taskflow < backend/seed.sql
 
 ## 🌿 The "UI Genius" Architecture
 This implementation delivers a high-performance **Biophilic Glassmorphism** experience for the Zomato Greening India Initiative.
-- **Tri-State Theme Engine**: Support for Greening India (Emerald), Obsidian Night, and Zomato Day.
-- **Mobile Floating Pill**: Ergonomic theme controls pinned to bottom-center for zero brand overlap.
-- **Holographic Vitality Core**: Real-time project health visualization.
+- **Tri-State Theme Engine**: Seamlessly switch between Greening India (Emerald), Obsidian Night, and Zomato Day.
+- **Mobile Floating Pill**: Ergonomic theme controls pinned to bottom-center for zero brand overlap on mobile devices.
+- **Holographic Vitality Core**: Adaptive visualization of project health and team velocity.
 
 ---
 
@@ -47,8 +53,6 @@ On AI tools: Cursor, Copilot, and ChatGPT are permitted. We evaluate the quality
 ### Who Builds What
 Role	Backend (Go)	Frontend (React)	Docker + README
 Full Stack Engineer	✅ Required	✅ Required	✅ Required
-Backend Engineer	✅ Required	❌ Not required — include a Postman/Bruno collection or test suite instead	✅ Required
-Frontend Engineer	❌ Not required — build against the mock API spec in Appendix A	✅ Required	✅ Required
 
 ### The Data Model
 Design your schema around these entities. You may add fields, but do not remove any required ones.
@@ -82,45 +86,16 @@ Design your schema around these entities. You may add fields, but do not remove 
 Use PostgreSQL. Schema must be managed via migrations — not auto-migrate or ORM magic.
 
 ### Backend Requirements
-Required for: Full Stack and Backend roles Language: Go (preferred).
-
-**Authentication**
-- Passwords must be hashed with bcrypt (cost ≥ 12)
-- JWT expiry: 24 hours. Include user_id and email in claims.
-- All non-auth endpoints require Authorization: Bearer <token>
-
-**Projects API**
-- GET	/projects	List projects the current user owns or has tasks in
-- POST	/projects	Create a project (owner = current user)
-- GET	/projects/:id	Get project details + its tasks
-- PATCH	/projects/:id	Update name/description (owner only)
-- DELETE	/projects/:id	Delete project and all its tasks (owner only)
-
-**Tasks API**
-- GET	/projects/:id/tasks	List tasks — support ?status= and ?assignee= filters
-- POST	/projects/:id/tasks	Create a task
-- PATCH	/tasks/:id	Update title, description, status, priority, assignee, due_date
-- DELETE	/tasks/:id	Delete task (project owner or task creator only)
+- **Authentication**: Bcrypt (cost 12), JWT (24h expiry), zero-trust bearer token protection.
+- **Projects & Tasks API**: Full CRUD orchestration with specific status/assignee filtering.
 
 ### Frontend Requirements
-Required for: Full Stack and Frontend roles Framework: React (with TypeScript strongly preferred)
-
-**UX & State**
-- Use React Router for navigation
-- Auth state must persist across page refreshes (localStorage or equivalent)
-- Protected routes: redirect to /login if unauthenticated
-- Loading and error states must be visible
-- Optimistic UI for task status changes
-
-**Design & Polish**
-- Responsive: must work at 375px (mobile) and 1280px (desktop) widths
-- No broken layouts, no console errors in the production build
-- Sensible empty states
+- **UX & State**: Persistent theme/auth, Protected routes, Optimistic UI updates.
+- **Design**: Biophilic Glassmorphism, 120Hz calibration, fully responsive (375px to 1280px).
 
 ### Infrastructure Requirements
-- **Docker**: docker-compose.yml must spin up the full stack.
-- **Migrations**: Migrations must run automatically on container start.
-- **Seed Data**: Include test credentials (test@example.com / password123).
+- **Docker**: Full stack containerization with multi-stage builds.
+- **Migrations**: Automated atomic schema management on container boot.
 
 ---
-*Created for the Zomato Engineering Take-Home.*
+*Created with "UI Genius" specifications for the Zomato Engineering Take-Home.*
