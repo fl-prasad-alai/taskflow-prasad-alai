@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/taskflow/backend/internal/auth"
+	"taskflow/backend/internal/auth"
 )
 
 type contextKey string

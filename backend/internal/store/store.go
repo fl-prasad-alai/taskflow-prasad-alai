@@ -9,7 +9,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/taskflow/backend/migrations"
+	"taskflow/backend/migrations"
 
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 )

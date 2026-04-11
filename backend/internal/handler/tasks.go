@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	appMiddleware "github.com/taskflow/backend/internal/middleware"
-	"github.com/taskflow/backend/internal/store"
+	appMiddleware "taskflow/backend/internal/middleware"
+	"taskflow/backend/internal/store"
 )
 
 var validStatuses = map[string]bool{"todo": true, "in_progress": true, "done": true}
