@@ -9,8 +9,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	appMiddleware "taskflow/backend/internal/middleware"
-	"taskflow/backend/internal/store"
+	appMiddleware "taskflow/backend/pkg/middleware"
+	"taskflow/backend/pkg/store"
 )
 
 // Handler holds application-wide dependencies shared across HTTP handlers.

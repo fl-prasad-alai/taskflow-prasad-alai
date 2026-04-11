@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"taskflow/backend/internal/config"
-	"taskflow/backend/internal/handler"
-	"taskflow/backend/internal/store"
+	"taskflow/backend/pkg/config"
+	"taskflow/backend/pkg/handler"
+	"taskflow/backend/pkg/store"
 )
 
 func main() {

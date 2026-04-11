@@ -7,8 +7,8 @@ import (
 	"os"
 	"sync"
 
-	"taskflow/backend/internal/handler"
-	"taskflow/backend/internal/store"
+	"taskflow/backend/pkg/handler"
+	"taskflow/backend/pkg/store"
 )
 
 var (
