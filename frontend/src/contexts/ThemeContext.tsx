@@ -1,32 +1,27 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
-type Theme = 'dark' | 'light';
+export type Theme = 'dark' | 'green' | 'light';
 
 interface ThemeContextValue {
   theme: Theme;
   setTheme: (t: Theme) => void;
-  toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-const STORAGE_KEY = 'tf_theme';
+const STORAGE_KEY = 'tf_theme_v2';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Default to dark — Obsidian is the primary experience
-  const [theme, setThemeState] = useState<Theme>('dark');
+  const [theme, setThemeState] = useState<Theme>('green');
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-    if (stored === 'light' || stored === 'dark') {
+    if (stored && ['dark', 'green', 'light'].includes(stored)) {
       applyTheme(stored);
       setThemeState(stored);
     } else {
-      // Respect system preference if no stored value, but still default to dark
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const initial: Theme = prefersDark ? 'dark' : 'light';
-      applyTheme(initial);
-      setThemeState(initial);
+      applyTheme('green');
+      setThemeState('green');
     }
   }, []);
 
@@ -36,12 +31,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(STORAGE_KEY, t);
   }, []);
 
-  const toggleTheme = useCallback(() => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  }, [theme, setTheme]);
-
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -49,10 +40,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 function applyTheme(t: Theme) {
   const root = document.documentElement;
-  if (t === 'dark') {
+  // Clear all theme classes
+  root.classList.remove('dark', 'green', 'light');
+  // Add current theme class
+  root.classList.add(t);
+  
+  // Also add 'dark' class if in 'green' mode to benefit from existing dark: variants
+  if (t === 'green' || t === 'dark') {
     root.classList.add('dark');
-  } else {
-    root.classList.remove('dark');
   }
 }
 

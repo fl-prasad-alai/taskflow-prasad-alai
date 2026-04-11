@@ -8,6 +8,8 @@ import type { Project } from '../types';
 import Navbar from '../components/Navbar';
 import GlassCard from '../components/GlassCard';
 import ProjectModal from '../components/ProjectModal';
+import { useTheme } from '../contexts/ThemeContext';
+import VitalityCore from '../components/VitalityCore';
 
 // ── Animation helpers ────────────────────────────────────────────────────────
 const FADE_UP = {
@@ -21,6 +23,7 @@ const STAGGER_GRID = {
 export default function ProjectsPage() {
   const qc       = useQueryClient();
   const navigate = useNavigate();
+  const { theme } = useTheme();
   const [modalOpen, setModalOpen] = useState(false);
 
   const { data, isLoading, error } = useQuery({
@@ -38,43 +41,48 @@ export default function ProjectsPage() {
   const totalProjects = projects.length;
 
   return (
-    <div className="min-h-screen dark:bg-black bg-zinc-50">
+    <div className={`min-h-screen transition-colors duration-500 ${theme === 'green' ? 'bg-[#022c22]' : 'dark:bg-black bg-zinc-50'}`}>
       <Navbar />
 
-      {/* Ambient violet glow behind header area */}
-      <div className="pointer-events-none fixed inset-x-0 top-0 h-96 bg-glow-radial dark:opacity-100 opacity-40" />
-
       <main className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-16">
-
+        
         {/* ── Page header ─────────────────────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-          className="flex items-end justify-between mb-10"
-        >
-          <div>
-            <p className="text-xs font-mono dark:text-zinc-600 text-zinc-400 uppercase tracking-widest mb-1">
-              Workspace
-            </p>
-            <h1 className="text-3xl font-bold tracking-tight dark:text-zinc-100 text-zinc-900">
-              Projects
-            </h1>
-          </div>
+        <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between mb-12 gap-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-8"
+          >
+            <div className="hidden sm:block">
+              <VitalityCore status={projects.some(p => p.name.includes("Obsidian")) ? 'critical' : 'normal'} />
+            </div>
+            <div className="text-center lg:text-left">
+              <p className={`text-[10px] font-bold uppercase tracking-[0.3em] mb-2 ${theme === 'green' ? 'text-emerald-500/60' : 'text-zinc-500'}`}>
+                System Vitals
+              </p>
+              <h1 className="text-5xl font-black tracking-tighter text-zinc-900 dark:text-white font-heading">
+                Workspace
+              </h1>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2 font-medium">
+                Vanguard standard orchestration active.
+              </p>
+            </div>
+          </motion.div>
 
           <motion.button
             onClick={() => setModalOpen(true)}
-            whileTap={{ scale: 0.95, transition: { type: 'spring', stiffness: 600, damping: 35 } }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className="
-              flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
-              bg-violet-600 hover:bg-violet-500 text-white
-              shadow-glow-violet transition-colors duration-200
+              flex items-center gap-2 px-6 py-3.5 rounded-2xl text-sm font-bold uppercase tracking-widest
+              bg-[#e11d48] text-white
+              shadow-xl shadow-[#e11d48]/20 transition-all duration-300
             "
           >
-            <Plus className="w-4 h-4" />
-            New Project
+            <Plus className="w-5 h-5" />
+            Initiate Project
           </motion.button>
-        </motion.div>
+        </div>
 
         {/* ── Loading skeleton ─────────────────────────────────────────────── */}
         {isLoading && (
@@ -105,15 +113,15 @@ export default function ProjectsPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="flex flex-col items-center justify-center py-24 text-center"
           >
-            <div className="w-16 h-16 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-4">
-              <Folder className="w-7 h-7 text-violet-400" />
+            <div className="w-16 h-16 rounded-2xl bg-[#e11d48]/10 border border-[#e11d48]/20 flex items-center justify-center mb-4">
+              <Folder className="w-7 h-7 text-[#e11d48]" />
             </div>
             <h3 className="text-base font-semibold dark:text-zinc-300 text-zinc-700 mb-1">No projects yet</h3>
             <p className="text-sm dark:text-zinc-600 text-zinc-500 mb-6">Create your first project to start tracking work.</p>
             <motion.button
               onClick={() => setModalOpen(true)}
               whileTap={{ scale: 0.96 }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-violet-600 hover:bg-violet-500 text-white shadow-glow-violet transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-[#e11d48] text-white shadow-xl shadow-[#e11d48]/20 transition-colors"
             >
               <Plus className="w-4 h-4" /> New Project
             </motion.button>
@@ -202,7 +210,7 @@ function StatCell({
         {icon}
         <span className="text-xs dark:text-zinc-500 text-zinc-500 font-mono uppercase tracking-wider">{label}</span>
       </div>
-      <p className="text-2xl font-bold dark:text-zinc-100 text-zinc-900">{value}</p>
+      <p className="text-2xl font-bold dark:text-zinc-100 text-zinc-900 font-heading tracking-tight">{value}</p>
       {subtitle && <p className="text-[10px] dark:text-zinc-600 text-zinc-400 mt-0.5">{subtitle}</p>}
     </GlassCard>
   );
@@ -217,13 +225,13 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
     <GlassCard onClick={onClick} padding="none">
       <div className="p-5">
         <div className="flex items-start justify-between mb-4">
-          <div className="w-10 h-10 rounded-xl bg-violet-500/15 border border-violet-500/20 flex items-center justify-center shrink-0">
-            <Folder className="w-4.5 h-4.5 text-violet-400" />
+          <div className="w-10 h-10 rounded-xl bg-[#e11d48]/10 border border-[#e11d48]/20 flex items-center justify-center shrink-0">
+            <Folder className="w-4.5 h-4.5 text-[#e11d48]" />
           </div>
-          <ChevronRight className="w-4 h-4 dark:text-zinc-700 text-zinc-300 group-hover:text-violet-400 transition-colors mt-1" />
+          <ChevronRight className="w-4 h-4 dark:text-zinc-700 text-zinc-300 group-hover:text-[#e11d48] transition-colors mt-1" />
         </div>
 
-        <h3 className="font-semibold dark:text-zinc-100 text-zinc-900 mb-1 leading-snug">
+        <h3 className="font-bold dark:text-zinc-100 text-zinc-900 mb-1 leading-snug font-heading tracking-tight">
           {project.name}
         </h3>
 
@@ -235,17 +243,17 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
           <p className="text-xs dark:text-zinc-700 text-zinc-400 italic mb-3">No description</p>
         )}
 
-        {/* Progress bar placeholder (full width, empty = no tasks loaded here) */}
+        {/* Progress bar placeholder */}
         <div className="h-[2px] rounded-full dark:bg-white/[.05] bg-black/[.04] mb-3 overflow-hidden">
           <motion.div
-            className="h-full bg-gradient-to-r from-violet-600 to-violet-400 rounded-full"
+            className="h-full bg-gradient-to-r from-[#e11d48] to-[#fb7185] rounded-full"
             initial={{ width: 0 }}
             animate={{ width: '0%' }}
           />
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="flex items-center gap-1 text-[10px] font-mono dark:text-zinc-600 text-zinc-400">
+          <span className="flex items-center gap-1 text-[10px] font-mono dark:text-zinc-600 text-zinc-400 uppercase tracking-widest">
             <Circle className="w-2.5 h-2.5 fill-current" />
             {date}
           </span>

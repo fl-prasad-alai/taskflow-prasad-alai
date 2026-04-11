@@ -16,11 +16,11 @@ const FIELD_INPUT = `
   dark:border dark:border-white/[.08] border border-black/[.08]
   dark:text-zinc-100 text-zinc-900
   dark:placeholder-zinc-600 placeholder-zinc-400
-  focus:outline-none focus:ring-2 focus:ring-violet-500/50
+  focus:outline-none focus:ring-2 focus:ring-[#e11d48]/50
   transition-colors
 `;
 
-const LABEL = 'block text-xs font-medium dark:text-zinc-400 text-zinc-600 mb-1.5 uppercase tracking-wider';
+const LABEL = 'block text-xs font-bold dark:text-zinc-500 text-zinc-500 mb-1.5 uppercase tracking-widest';
 
 export default function ProjectModal({ open, project, onClose, onSave }: Props) {
   const [name,        setName]        = useState('');
@@ -62,7 +62,7 @@ export default function ProjectModal({ open, project, onClose, onSave }: Props) 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/80 backdrop-blur-md"
             onClick={onClose}
           />
 
@@ -74,68 +74,68 @@ export default function ProjectModal({ open, project, onClose, onSave }: Props) 
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
             className="
-              relative w-full max-w-md rounded-2xl overflow-hidden
+              relative w-full max-w-md rounded-3xl overflow-hidden
               dark:bg-zinc-900/95 bg-white
               dark:border dark:border-white/[.08] border border-black/[.08]
-              dark:shadow-glass shadow-card-light
+              shadow-2xl
             "
           >
             {/* Top-edge highlight */}
             <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
             {/* Header */}
-            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b dark:border-white/[.06] border-black/[.06]">
-              <h2 className="text-base font-semibold dark:text-zinc-100 text-zinc-900">
-                {project ? 'Edit Project' : 'New Project'}
+            <div className="flex items-center justify-between px-8 pt-6 pb-4 border-b dark:border-white/[.06] border-black/[.06]">
+              <h2 className="text-xl font-black tracking-tighter dark:text-zinc-100 text-zinc-900 font-heading">
+                {project ? 'EDIT PROJECT' : 'NEW PROJECT'}
               </h2>
               <motion.button
                 onClick={onClose}
                 whileTap={{ scale: 0.88 }}
                 className="p-1.5 rounded-lg dark:text-zinc-600 dark:hover:text-zinc-300 dark:hover:bg-white/8 text-zinc-400 hover:text-zinc-700 hover:bg-black/5 transition-colors"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </motion.button>
             </div>
 
             {/* Body */}
-            <form id="project-form" onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
-              <div>
+            <form id="project-form" onSubmit={handleSubmit} className="px-8 py-6 space-y-6">
+              <div className="space-y-2">
                 <label className={LABEL}>
-                  Name <span className="text-red-400 normal-case tracking-normal">*</span>
+                  Project Identity <span className="text-[#e11d48] normal-case tracking-normal">*</span>
                 </label>
                 <input
                   ref={nameRef}
                   value={name}
                   onChange={e => setName(e.target.value)}
                   className={`${FIELD_INPUT} ${error ? 'border-red-500/50 focus:ring-red-500/40' : ''}`}
-                  placeholder="e.g. Website Redesign"
+                  placeholder="e.g. Project Obsidian"
                 />
               </div>
 
-              <div>
-                <label className={LABEL}>Description</label>
+              <div className="space-y-2">
+                <label className={LABEL}>Mission Description</label>
                 <textarea
                   value={description}
                   onChange={e => setDescription(e.target.value)}
-                  rows={3}
+                  rows={4}
                   className={`${FIELD_INPUT} resize-none`}
-                  placeholder="Optional description"
+                  placeholder="Define the scope and strategic value..."
                 />
               </div>
 
               {error && (
-                <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
+                <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 font-semibold">
                   {error}
                 </p>
               )}
             </form>
 
             {/* Footer */}
-            <div className="flex justify-end gap-2 px-6 py-4 border-t dark:border-white/[.06] border-black/[.06]">
+            <div className="flex justify-end items-center gap-4 px-8 py-6 border-t dark:border-white/[.06] border-black/[.06]">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm dark:text-zinc-400 dark:hover:text-zinc-200 text-zinc-600 hover:text-zinc-900 transition-colors rounded-lg dark:hover:bg-white/5 hover:bg-black/5"
+                className="text-sm font-bold dark:text-zinc-500 dark:hover:text-zinc-300 text-zinc-400 hover:text-zinc-600 transition-colors uppercase tracking-widest"
               >
                 Cancel
               </button>
@@ -143,12 +143,13 @@ export default function ProjectModal({ open, project, onClose, onSave }: Props) 
                 type="submit"
                 form="project-form"
                 disabled={saving}
-                whileTap={{ scale: 0.97, transition: { type: 'spring', stiffness: 600, damping: 35 } }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 className="
-                  flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold
-                  bg-violet-600 hover:bg-violet-500 text-white
+                  flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest
+                  bg-[#e11d48] text-white
                   disabled:opacity-50 disabled:cursor-not-allowed
-                  shadow-glow-violet transition-colors duration-200
+                  shadow-xl shadow-[#e11d48]/20 transition-all duration-300
                 "
               >
                 {saving ? (
@@ -158,10 +159,10 @@ export default function ProjectModal({ open, project, onClose, onSave }: Props) 
                       transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
                       className="block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full"
                     />
-                    Saving…
+                    STAGING…
                   </span>
                 ) : (
-                  project ? 'Save Changes' : 'Create Project'
+                  project ? 'Save Identity' : 'Initiate Mission'
                 )}
               </motion.button>
             </div>

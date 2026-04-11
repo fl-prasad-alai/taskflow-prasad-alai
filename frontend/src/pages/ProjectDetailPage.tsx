@@ -89,7 +89,7 @@ function ConfirmDialog({
             className={`px-4 py-2 text-sm font-semibold rounded-xl transition-colors ${
               danger
                 ? 'bg-red-600 hover:bg-red-500 text-white'
-                : 'bg-violet-600 hover:bg-violet-500 text-white'
+                : 'bg-[#e11d48] hover:bg-[#fb7185] text-white'
             }`}
           >
             {confirmLabel}
@@ -393,11 +393,12 @@ export default function ProjectDetailPage() {
 
           <motion.button
             onClick={() => setTaskModal({ open: true })}
-            whileTap={{ scale: 0.95, transition: { type: 'spring', stiffness: 600, damping: 35 } }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className="
-              flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold
-              bg-violet-600 hover:bg-violet-500 text-white
-              shadow-glow-violet transition-colors duration-200
+              flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-widest
+              bg-[#e11d48] text-white
+              shadow-xl shadow-[#e11d48]/20 transition-all duration-300
             "
           >
             <Plus className="w-3.5 h-3.5" />
