@@ -1,5 +1,5 @@
 # TaskFlow — Engineering Take-Home Assignment
-### Mid-level Engineer · Full Stack / Frontend / Backend
+### Mid-level Engineer · Full Stack Project (Zomato Vanguard Edition)
 
 ## 📸 Implementation Preview (The "Biophilic Vanguard")
 
@@ -20,86 +20,108 @@ A dynamic preview of the Biophilic Vanguard ecosystem, showcasing seamless theme
 
 ---
 
-## 🚀 Running Locally
-Assume you have Docker installed:
+## 1. Overview
+TaskFlow is a high-performance productivity ecosystem custom-engineered for the **Zomato Greening India Initiative**. It moves beyond standard project management into a realm of **Biophilic Design**, where the interface reflects the organic growth and sustainability goals of the mission.
+
+### Tech Stack
+- **Backend**: Go 1.22 (Lightweight performance binary), JWT Authentication, BCRYPT (Cost 12), Structured `slog`.
+- **Frontend**: React 18, TypeScript, Framer Motion (Spring-based physics), Tailwind CSS.
+- **Infrastructure**: PostgreSQL 16, Docker Compose, Multi-stage builds.
+
+---
+
+## 2. Architecture Decisions
+### 🌿 Philosophy: Biophilic Vanguard
+To solve the Zomato brief, we harmonized **Internal Energy** (Crimson actions) with **Botanical Stability** (Emerald backgrounds). We chose a "Glassmorphism" layer to allow the "Chlorophyll" light leaks to permeate the UI, making it feel alive and fluid.
+
+### ⚙️ Backend: Go + Chi
+- **Decision**: Used the Go Standard Library with `chi` for routing.
+- **Reasoning**: To avoid the "Black Box" overhead of heavier frameworks. This allows for clear, reviewable logic in `backend/internal/handler/` and `backend/internal/store/`.
+- **Trade-off**: Requires more manual validation, but ensures absolute control over the JWT claims and SQL execution.
+
+### 📦 State: React Context over Redux
+- **Decision**: Intentionally left out Redux/Zustand.
+- **Reasoning**: The application’s state (Auth & Theme) is localized. React Context provides a native, low-overhead way to handle this without increasing bundle size or complexity for an MVP.
+
+---
+
+## 3. Running Locally
+Assume you have Docker installed and port `3000` and `8080` available:
 
 ```bash
-# 1. Start the Environment
-docker compose up --build -d
+# 1. Clone & Enter
+git clone https://github.com/fl-prasad-alai/taskflow-prasad-alai
+cd taskflow-prasad-alai
 
-# 2. Seed the Indian Vanguard Team
-docker exec -i [db-container-id] psql -U taskflow -d taskflow < backend/seed.sql
+# 2. Setup Environment
+cp .env.example .env
+
+# 3. Start the Environment
+docker compose up --build -d
+```
+The app will be available at **http://localhost:3000**.
+
+---
+
+## 4. Running Migrations
+Migrations run **automatically** on container startup via the backend entrypoint. If you need to run them manually:
+```bash
+docker exec -it taskflow-api ./migrate -path ./migrations -database "$DATABASE_URL" up
 ```
 
-**Test Credentials:**
-* **Email**: `test@example.com`
-* **Password**: `password123`
+---
+
+## 5. Test Credentials
+Use these to bypass registration and see the pre-seeded "Vanguard Team" data:
+- **Email**: `test@example.com`
+- **Password**: `password123`
 
 ---
 
-## 🌿 The "UI Genius" Architecture
-This implementation delivers a high-performance **Biophilic Glassmorphism** experience for the Zomato Greening India Initiative.
-- **Tri-State Theme Engine**: Seamlessly switch between Greening India (Emerald), Obsidian Night, and Zomato Day.
-- **Mobile Floating Pill**: Ergonomic theme controls pinned to bottom-center for zero brand overlap on mobile devices.
-- **Holographic Vitality Core**: Adaptive visualization of project health and team velocity.
+## 6. API Reference
+All responses use `Content-Type: application/json`. Authorization requires `Bearer <token>`.
+
+### Authentication
+- `POST /auth/register`: Create a new user.
+- `POST /auth/login`: Returns JWT and user object.
+```json
+// Login Response Example
+{
+  "token": "<jwt-token>",
+  "user": { "id": "uuid", "name": "Arjun", "email": "test@example.com" }
+}
+```
+
+### Projects
+- `GET /projects`: List accessible projects.
+- `POST /projects`: Create a project.
+- `GET /projects/:id`: Get project details and tasks.
+```json
+// GET /projects/:id Example
+{
+  "id": "uuid", "name": "Greening India", "owner_id": "uuid",
+  "tasks": [ { "id": "uuid", "title": "Planting Saplings", "status": "in_progress" } ]
+}
+```
+- `PATCH /projects/:id`: Update project info.
+- `DELETE /projects/:id`: Delete project and all tasks.
+
+### Tasks
+- `GET /projects/:id/tasks`: List tasks. Supports `?status=todo` and `?assignee=uuid`.
+- `POST /projects/:id/tasks`: Create a task.
+- `PATCH /tasks/:id`: Update task fields (Title, Status, Priority, Assignee).
+- `DELETE /tasks/:id`: Delete task.
 
 ---
 
-## 📝 Original Instructions
-
-### Overview
-You're building TaskFlow — a minimal but real task management system. Users can register, log in, create projects, add tasks to those projects, and assign tasks to themselves or others.
-
-This is not a to-do app demo. It's a small product with authentication, relational data, a REST API, and a polished UI. Scope is intentionally constrained so you can ship something complete.
-
-On AI tools: Cursor, Copilot, and ChatGPT are permitted. We evaluate the quality of your decisions, not the volume of your code. A project with thoughtful architecture and honest tradeoffs outranks boilerplate AI output every time. Be prepared to discuss every part of your submission on a follow-up call.
-
-### Who Builds What
-Role	Backend (Go)	Frontend (React)	Docker + README
-Full Stack Engineer	✅ Required	✅ Required	✅ Required
-
-### The Data Model
-Design your schema around these entities. You may add fields, but do not remove any required ones.
-
-**User**
-  - id          uuid, primary key
-  - name        string, required
-  - email       string, unique, required
-  - password    string, hashed (bcrypt), required
-  - created_at  timestamp
-
-**Project**
-  - id          uuid, primary key
-  - name        string, required
-  - description string, optional
-  - owner_id    uuid → User
-  - created_at  timestamp
-
-**Task**
-  - id          uuid, primary key
-  - title       string, required
-  - description string, optional
-  - status      enum: todo | in_progress | done
-  - priority    enum: low | medium | high
-  - project_id  uuid → Project
-  - assignee_id uuid → User, nullable
-  - due_date    date, optional
-  - created_at  timestamp
-  - updated_at  timestamp
-
-Use PostgreSQL. Schema must be managed via migrations — not auto-migrate or ORM magic.
-
-### Backend Requirements
-- **Authentication**: Bcrypt (cost 12), JWT (24h expiry), zero-trust bearer token protection.
-- **Projects & Tasks API**: Full CRUD orchestration with specific status/assignee filtering.
-
-### Frontend Requirements
-- **UX & State**: Persistent theme/auth, Protected routes, Optimistic UI updates.
-- **Design**: Biophilic Glassmorphism, 120Hz calibration, fully responsive (375px to 1280px).
-
-### Infrastructure Requirements
-- **Docker**: Full stack containerization with multi-stage builds.
-- **Migrations**: Automated atomic schema management on container boot.
+## 7. What I'd Do With More Time (Shortcuts & Reflections)
+- **Shortcuts Taken**: 
+    - Used **Polling** for dashboard updates instead of **WebSockets**.
+    - Restricted **Unit Testing** to the core Auth/Store logic; would expand to full E2E Coverage.
+- **Future Roadmap**:
+    - **Kanban Drag-and-Drop**: Tactile task movement using `dnd-kit`.
+    - **Real-time SSE**: Instant project-wide updates for collaborative teams.
+    - **Activity Stream**: A biophilic feed of "Growth Log" actions (who did what).
 
 ---
-*Created with "UI Genius" specifications for the Zomato Engineering Take-Home.*
+*Created with 'UI Genius' specifications for the Zomato Engineering Take-Home.*
