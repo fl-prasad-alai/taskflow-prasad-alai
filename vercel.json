@@ -15,4 +15,4 @@
     { "source": "/api/(.*)", "destination": "/api/index.go" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
-}
+} 
