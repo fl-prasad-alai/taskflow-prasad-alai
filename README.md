@@ -1,69 +1,126 @@
-# Vanguard TaskFlow: Greening India Edition
-### High-Performance Orchestration | Biophilic Glassmorphism | Pure Class Aesthetic
+# TaskFlow — Engineering Take-Home Assignment
+### Mid-level Engineer · Full Stack / Frontend / Backend
 
-![TaskFlow Hero Banner](./screenshots/hero-banner.png)
-
-## 🌿 The Mission: Greening India
-Vanguard TaskFlow is a high-end productivity ecosystem custom-engineered for the **Zomato Greening India Initiative**. It moves beyond standard "Project Management" into a realm of **Biophilic Design**, where the interface reflects the organic growth and sustainability goals of the mission.
-
----
-
-## ⚡ The "UI Genius" Experience
-The platform features a world-class **Tri-State Theme Engine** specifically designed to solve the Zomato brief:
-
-*   **Greening India (Flagship)**: A deep emerald palette (`#022c22`) with "Chlorophyll" light leaks, designed to evoke a high-tech observatory overlooking a forest.
-*   **Obsidian Night**: A sleek, dark interface for deep-focus engineering.
-*   **Zomato Day**: A clean, light aesthetic utilizing Zomato's signature Red (`#e11d48`) for high-impact primary actions.
-
-### 🎨 Philosophy of the Biophilic Vanguard
-This project solves the Zomato design brief by harmonizing two contrasting energies: **Internal Energy** and **Botanical Stability**.
-
-- **Desktop Experience**: Utilizes the vast viewport to create a "Cinematic Staging" area. Elements use a 120Hz refresh cycle to ensure that every scroll and hover feels as fluid as the nature it represents.
-- **Mobile Experience**: Reimagines the traditional "Top Nav" into an ergonomic **Floating Pill Architecture**. By relocating the theme controls to the bottom-center, we ensure high usability for one-handed operation while preserving the brand logo's visibility at the top.
-- **The Design Soul**: Zomato's signature **Crimson Red (#e11d48)** is preserved exclusively for high-vitality actions (creating tasks, critical alerts), while the **Greening India Emerald (#022c22)** provides the foundational calm for productive focus.
-
----
-
-## 📸 Screenshots (Original App Capture)
+## 📸 Implementation Preview (Original App Screenshots)
 | **"Eco-Obsidian" Login** | **Biophilic Dashboard** |
 | :---: | :---: |
 | ![Login View](./screenshots/login-view.png) | ![Green Mode Dashboard](./screenshots/green-mode.png) |
 | **Project Detail View** | **Mobile Floating Navigation** |
 | ![Project Detail](./screenshots/project-detail.png) | ![Mobile Layout](./screenshots/mobile-view.png) |
 
-> [!TIP]
-> **Tri-State Glow Capsule**: The header features a persistent 160px capsule for seamless switching between Dark, Green, and Light modes.
-> ![Toggle Close-up](./screenshots/toggle-capsule.png)
+---
+
+## 🚀 Running Locally
+Assume you have Docker installed:
+
+```bash
+# 1. Start the Environment
+docker compose up --build -d
+
+# 2. Seed the Indian Vanguard Team
+docker exec -i [db-container-id] psql -U taskflow -d taskflow < backend/seed.sql
+```
+
+**Test Credentials:**
+* **Email**: `test@example.com`
+* **Password**: `password123`
 
 ---
 
-## 🛠️ The Vanguard Tech Stack
-Built for extreme performance and low-latency orchestration:
-
-| Layer | Technology |
-| :--- | :--- |
-| **Backend** | **Go (Golang) 1.22** · Chi Router · pgx/v5 (Binary protocol) |
-| **Frontend** | **React 18** · TypeScript · Vite · **Framer Motion** · Tailwind CSS |
-| **Database** | **PostgreSQL 16** (Optimized for UUID & pgcrypto) |
+## 🌿 The "UI Genius" Architecture
+This implementation delivers a high-performance **Biophilic Glassmorphism** experience for the Zomato Greening India Initiative.
+- **Tri-State Theme Engine**: Support for Greening India (Emerald), Obsidian Night, and Zomato Day.
+- **Mobile Floating Pill**: Ergonomic theme controls pinned to bottom-center for zero brand overlap.
+- **Holographic Vitality Core**: Real-time project health visualization.
 
 ---
 
-## 👥 The Vanguard Team (India Roster)
-The system is pre-seeded with a localized Indian engineering team:
-- **Arjun Mehta** (Lead Orchestrator)
-- **Priya Sharma** (Design Strategy)
-- **Ishaan Malhotra** (Systems Architect)
-- **Ananya Singh** (Product Flow)
-- **Rohan Gupta** (Data Integrity)
+## 📝 Original Instructions
 
-*All pre-seeded accounts share the password:* `password123`
+### Overview
+You're building TaskFlow — a minimal but real task management system. Users can register, log in, create projects, add tasks to those projects, and assign tasks to themselves or others.
+
+This is not a to-do app demo. It's a small product with authentication, relational data, a REST API, and a polished UI. Scope is intentionally constrained so you can ship something complete.
+
+On AI tools: Cursor, Copilot, and ChatGPT are permitted. We evaluate the quality of your decisions, not the volume of your code. A project with thoughtful architecture and honest tradeoffs outranks boilerplate AI output every time. Be prepared to discuss every part of your submission on a follow-up call.
+
+### Who Builds What
+Role	Backend (Go)	Frontend (React)	Docker + README
+Full Stack Engineer	✅ Required	✅ Required	✅ Required
+Backend Engineer	✅ Required	❌ Not required — include a Postman/Bruno collection or test suite instead	✅ Required
+Frontend Engineer	❌ Not required — build against the mock API spec in Appendix A	✅ Required	✅ Required
+
+### The Data Model
+Design your schema around these entities. You may add fields, but do not remove any required ones.
+
+**User**
+  - id          uuid, primary key
+  - name        string, required
+  - email       string, unique, required
+  - password    string, hashed (bcrypt), required
+  - created_at  timestamp
+
+**Project**
+  - id          uuid, primary key
+  - name        string, required
+  - description string, optional
+  - owner_id    uuid → User
+  - created_at  timestamp
+
+**Task**
+  - id          uuid, primary key
+  - title       string, required
+  - description string, optional
+  - status      enum: todo | in_progress | done
+  - priority    enum: low | medium | high
+  - project_id  uuid → Project
+  - assignee_id uuid → User, nullable
+  - due_date    date, optional
+  - created_at  timestamp
+  - updated_at  timestamp
+
+Use PostgreSQL. Schema must be managed via migrations — not auto-migrate or ORM magic.
+
+### Backend Requirements
+Required for: Full Stack and Backend roles Language: Go (preferred).
+
+**Authentication**
+- Passwords must be hashed with bcrypt (cost ≥ 12)
+- JWT expiry: 24 hours. Include user_id and email in claims.
+- All non-auth endpoints require Authorization: Bearer <token>
+
+**Projects API**
+- GET	/projects	List projects the current user owns or has tasks in
+- POST	/projects	Create a project (owner = current user)
+- GET	/projects/:id	Get project details + its tasks
+- PATCH	/projects/:id	Update name/description (owner only)
+- DELETE	/projects/:id	Delete project and all its tasks (owner only)
+
+**Tasks API**
+- GET	/projects/:id/tasks	List tasks — support ?status= and ?assignee= filters
+- POST	/projects/:id/tasks	Create a task
+- PATCH	/tasks/:id	Update title, description, status, priority, assignee, due_date
+- DELETE	/tasks/:id	Delete task (project owner or task creator only)
+
+### Frontend Requirements
+Required for: Full Stack and Frontend roles Framework: React (with TypeScript strongly preferred)
+
+**UX & State**
+- Use React Router for navigation
+- Auth state must persist across page refreshes (localStorage or equivalent)
+- Protected routes: redirect to /login if unauthenticated
+- Loading and error states must be visible
+- Optimistic UI for task status changes
+
+**Design & Polish**
+- Responsive: must work at 375px (mobile) and 1280px (desktop) widths
+- No broken layouts, no console errors in the production build
+- Sensible empty states
+
+### Infrastructure Requirements
+- **Docker**: docker-compose.yml must spin up the full stack.
+- **Migrations**: Migrations must run automatically on container start.
+- **Seed Data**: Include test credentials (test@example.com / password123).
 
 ---
-
-## 🚀 Rapid Deployment
-1.  **Spin up the Containerized Ecosystem**: `docker compose up --build -d`
-2.  **Inject the Vanguard Seed Data**: `docker exec -i [db-container-id] psql -U taskflow -d taskflow < backend/seed.sql`
-3.  **Access the Observatory**: [http://localhost:3000](http://localhost:3000)
-
----
-*Created with "UI Genius" specifications for the Zomato Greening India Engineering Take-Home.*
+*Created for the Zomato Engineering Take-Home.*
