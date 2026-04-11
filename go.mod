@@ -1,4 +1,4 @@
-module github.com/taskflow/backend
+module taskflow
 
 go 1.22
 

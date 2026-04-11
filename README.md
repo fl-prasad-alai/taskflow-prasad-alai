@@ -1,210 +1,127 @@
-# TaskFlow
+# TaskFlow — Engineering Take-Home Assignment
+### Mid-level Engineer · Full Stack Project (Zomato Vanguard Edition)
 
-A minimal but complete task management system with authentication, projects, and tasks.
+## 📸 Implementation Preview (The "Biophilic Vanguard")
+
+### 🖥️ Desktop Experience (Dual-Theme Orchestration)
+| **"Greening India" (Emerald Mode)** | **"Obsidian Night" (Dark Mode)** |
+| :--- | :--- |
+| ![Green Mode Dashboard](./screenshots/green-mode.png) | ![Dark Mode Dashboard](./screenshots/dark-mode.png) |
+| ![Green Mode Detail](./screenshots/project-detail.png) | ![Dark Mode Detail](./screenshots/dark-mode-detail.png) |
+
+### 📱 Mobile & Micro-Interactions
+| **Ergonomic Floating Pill** | **Eco-Obsidian Login** | **Tri-State Glow Capsule** |
+| :---: | :---: | :---: |
+| ![Mobile Layout](./screenshots/mobile-view.png) | ![Login View](./screenshots/login-view.png) | ![Toggle Close-up](./screenshots/toggle-capsule.png) |
+
+### 🎬 Holographic Walkthrough
+A dynamic preview of the Biophilic Vanguard ecosystem, showcasing seamless theme transitions and project orchestration.
+![Vanguard Demo Walkthrough](./screenshots/demo-recording.webp)
 
 ---
 
 ## 1. Overview
+TaskFlow is a high-performance productivity ecosystem custom-engineered for the **Zomato Greening India Initiative**. It moves beyond standard project management into a realm of **Biophilic Design**, where the interface reflects the organic growth and sustainability goals of the mission.
 
-TaskFlow lets users register, log in, create projects, add tasks to those projects, and assign tasks to themselves or teammates.
-
-| Layer     | Technology                                              |
-|-----------|---------------------------------------------------------|
-| Backend   | Go 1.22 · chi router · pgx/v5 · golang-migrate          |
-| Frontend  | React 18 · TypeScript · Vite · TanStack Query · Tailwind CSS |
-| Database  | PostgreSQL 16                                           |
-| Component lib | Radix UI primitives + Tailwind CSS (custom components) |
-| Auth      | JWT (HS256, 24-hour expiry) · bcrypt cost 12            |
+### Tech Stack
+- **Backend**: Go 1.22 (Lightweight performance binary), JWT Authentication, BCRYPT (Cost 12), Structured `slog`.
+- **Frontend**: React 18, TypeScript, Framer Motion (Spring-based physics), Tailwind CSS.
+- **Infrastructure**: PostgreSQL 16, Docker Compose, Multi-stage builds.
 
 ---
 
 ## 2. Architecture Decisions
+### 🌿 Philosophy: Biophilic Vanguard
+To solve the Zomato brief, we harmonized **Internal Energy** (Crimson actions) with **Botanical Stability** (Emerald backgrounds). We chose a "Glassmorphism" layer to allow the "Chlorophyll" light leaks to permeate the UI, making it feel alive and fluid.
 
-### Backend
+### ⚙️ Backend: Go + Chi
+- **Decision**: Used the Go Standard Library with `chi` for routing.
+- **Reasoning**: To avoid the "Black Box" overhead of heavier frameworks. This allows for clear, reviewable logic in `backend/internal/handler/` and `backend/internal/store/`.
+- **Trade-off**: Requires more manual validation, but ensures absolute control over the JWT claims and SQL execution.
 
-**Layered structure without an ORM**
-The backend is split into `config → store → auth → handler → middleware`. SQL is written by hand using `pgx/v5`. No ORM was used — the schema is simple enough that raw SQL is faster to write and easier to review, and it avoids the "magic" that makes debugging harder in take-home contexts.
-
-**Embedded migrations**
-Migration SQL files are embedded in the binary via `//go:embed`. The server runs `migrate.Up()` at startup with an idempotent no-op if there is nothing to do. This means there is literally zero manual step required to set up the schema.
-
-**Store retry loop**
-`store.New()` retries the database connection up to 10 times (with linear back-off). This handles the inevitable race between the Go container starting and PostgreSQL being ready, without needing a `wait-for-it.sh` script.
-
-**Optimistic partial updates**
-`PATCH /tasks/:id` accepts a raw `map[string]json.RawMessage` so it can distinguish "field absent" (keep existing value) from "field sent as null" (clear the value). This is the correct REST PATCH behaviour and it avoids overwriting fields the client did not touch.
-
-**Users endpoint**
-A `GET /users` endpoint returns all users (id, name, email) so the frontend can populate the assignee picker. In a real product this would be scoped to project members; the simplification is noted below.
-
-**Tradeoffs / omissions**
-- No refresh tokens — the 24-hour JWT is the only token. A production system would add short-lived access tokens plus refresh tokens in HttpOnly cookies.
-- No rate-limiting on auth endpoints.
-- `GET /users` returns all users instead of scoping to project members. Acceptable for a small team tool; would need RLS or a members table at scale.
-- CORS origin is a single allowed origin; a production setup would allow a list.
-
-### Frontend
-
-**TanStack Query for server state**
-All remote data lives in the query cache. Mutations call `invalidateQueries` on success so the UI always reflects the latest server state. Optimistic updates are used for task status changes: the cache is updated immediately and reverted if the API call fails.
-
-**Auth in localStorage**
-The JWT and user object are persisted in `localStorage` so the session survives page refreshes. The tradeoff vs. HttpOnly cookies is XSS exposure; accepted here for simplicity — noted as a "more time" item.
-
-**Relative API URLs + proxy**
-All `fetch()` calls use relative paths (`/auth/login`, `/projects`, etc.). Vite's dev server proxies these to `http://localhost:8080`. In production (Docker), nginx does the same proxy. This means no base-URL config is required — the same build artifact works in both environments.
-
-**Component library choice**
-Custom components built on Tailwind CSS + a small set of Radix UI primitives (no full framework). This avoids the heavyweight setup that shadcn/ui requires via its CLI, while still using accessible, headless primitives where needed.
+### 📦 State: React Context over Redux
+- **Decision**: Intentionally left out Redux/Zustand.
+- **Reasoning**: The application’s state (Auth & Theme) is localized. React Context provides a native, low-overhead way to handle this without increasing bundle size or complexity for an MVP.
 
 ---
 
 ## 3. Running Locally
-
-**Prerequisites:** Docker Desktop (or Docker Engine + Compose plugin). Nothing else.
+Assume you have Docker installed and port `3000` and `8080` available:
 
 ```bash
-git clone https://github.com/your-name/taskflow
-cd taskflow
+# 1. Clone & Enter
+git clone https://github.com/fl-prasad-alai/taskflow-prasad-alai
+cd taskflow-prasad-alai
+
+# 2. Setup Environment
 cp .env.example .env
-docker compose up --build
+
+# 3. Start the Environment
+docker compose up --build -d
 ```
-
-- Frontend: http://localhost:3000
-- API:      http://localhost:8080
-
-The backend runs migrations automatically on start. The `seed` service loads test data once the API is healthy.
+The app will be available at **http://localhost:3000**.
 
 ---
 
 ## 4. Running Migrations
-
-Migrations are **automatic** — they run inside the Go binary every time the backend starts. There is no manual step.
-
-To roll back manually (if needed):
-
+Migrations run **automatically** on container startup via the backend entrypoint. If you need to run them manually:
 ```bash
-# Install golang-migrate CLI
-brew install golang-migrate   # macOS
-
-# Roll back one migration
-migrate -path ./backend/migrations \
-        -database "postgres://taskflow:changeme@localhost:5432/taskflow?sslmode=disable" \
-        down 1
+docker exec -it taskflow-api ./migrate -path ./migrations -database "$DATABASE_URL" up
 ```
 
 ---
 
 ## 5. Test Credentials
-
-The seed job creates three users, all with the same password:
-
-| Name       | Email                | Password    |
-|------------|----------------------|-------------|
-| Test User  | test@example.com     | password123 |
-| Alice Smith| alice@example.com    | password123 |
-| Bob Jones  | bob@example.com      | password123 |
-
-Log in immediately at http://localhost:3000/login with `test@example.com` / `password123`.
-
-The seed also creates one project ("Website Redesign") with three tasks in different statuses.
+Use these to bypass registration and see the pre-seeded "Vanguard Team" data:
+- **Email**: `test@example.com`
+- **Password**: `password123`
 
 ---
 
 ## 6. API Reference
+All responses use `Content-Type: application/json`. Authorization requires `Bearer <token>`.
 
-All endpoints (except `/auth/*`) require `Authorization: Bearer <token>`.
-
-### Auth
-
-```
-POST /auth/register
-Body: { "name": "Jane", "email": "jane@example.com", "password": "secret123" }
-201:  { "token": "...", "user": { "id", "name", "email", "created_at" } }
-400:  { "error": "validation failed", "fields": { "email": "is required" } }
-
-POST /auth/login
-Body: { "email": "jane@example.com", "password": "secret123" }
-200:  { "token": "...", "user": { ... } }
-401:  { "error": "invalid credentials" }
-```
-
-### Users
-
-```
-GET /users
-200: { "users": [{ "id", "name", "email" }, ...] }
-```
-
-### Projects
-
-```
-GET    /projects            → 200 { "projects": [...] }
-POST   /projects            → 201 project object
-GET    /projects/:id        → 200 project + tasks
-PATCH  /projects/:id        → 200 updated project   (owner only)
-DELETE /projects/:id        → 204                   (owner only)
-GET    /projects/:id/stats  → 200 { total, by_status, by_assignee }
-```
-
-### Tasks
-
-```
-GET    /projects/:id/tasks?status=todo&assignee=<uuid>  → 200 { "tasks": [...] }
-POST   /projects/:id/tasks                              → 201 task object
-PATCH  /tasks/:id                                       → 200 updated task
-DELETE /tasks/:id                                       → 204  (owner or creator)
-```
-
-**Task object shape:**
+### Authentication
+- `POST /auth/register`: Create a new user.
+- `POST /auth/login`: Returns JWT and user object.
 ```json
+// Login Response Example
 {
-  "id": "uuid",
-  "title": "Design homepage",
-  "description": "...",
-  "status": "in_progress",
-  "priority": "high",
-  "project_id": "uuid",
-  "assignee_id": "uuid",
-  "assignee": { "id": "uuid", "name": "Alice", "email": "alice@example.com" },
-  "created_by": "uuid",
-  "due_date": "2026-04-15",
-  "created_at": "2026-04-01T10:00:00Z",
-  "updated_at": "2026-04-09T15:30:00Z"
+  "token": "<jwt-token>",
+  "user": { "id": "uuid", "name": "Arjun", "email": "test@example.com" }
 }
 ```
 
-**Error shape (all non-2xx):**
+### Projects
+- `GET /projects`: List accessible projects.
+- `POST /projects`: Create a project.
+- `GET /projects/:id`: Get project details and tasks.
 ```json
-{ "error": "not found" }
-{ "error": "validation failed", "fields": { "title": "is required" } }
+// GET /projects/:id Example
+{
+  "id": "uuid", "name": "Greening India", "owner_id": "uuid",
+  "tasks": [ { "id": "uuid", "title": "Planting Saplings", "status": "in_progress" } ]
+}
 ```
+- `PATCH /projects/:id`: Update project info.
+- `DELETE /projects/:id`: Delete project and all tasks.
+
+### Tasks
+- `GET /projects/:id/tasks`: List tasks. Supports `?status=todo` and `?assignee=uuid`.
+- `POST /projects/:id/tasks`: Create a task.
+- `PATCH /tasks/:id`: Update task fields (Title, Status, Priority, Assignee).
+- `DELETE /tasks/:id`: Delete task.
 
 ---
 
-## 7. What I'd Do With More Time
+## 7. What I'd Do With More Time (Shortcuts & Reflections)
+- **Shortcuts Taken**: 
+    - Used **Polling** for dashboard updates instead of **WebSockets**.
+    - Restricted **Unit Testing** to the core Auth/Store logic; would expand to full E2E Coverage.
+- **Future Roadmap**:
+    - **Kanban Drag-and-Drop**: Tactile task movement using `dnd-kit`.
+    - **Real-time SSE**: Instant project-wide updates for collaborative teams.
+    - **Activity Stream**: A biophilic feed of "Growth Log" actions (who did what).
 
-**Security**
-- Replace single long-lived JWT with short-lived access tokens + HttpOnly refresh token cookies. The current localStorage approach is vulnerable to XSS.
-- Add rate-limiting on `/auth/register` and `/auth/login` to prevent brute-force.
-- CORS allow-list instead of single origin.
-
-**Product features**
-- Drag-and-drop to reorder tasks or move them between status columns (Kanban view).
-- Real-time task updates via Server-Sent Events — the backend already handles concurrent DB access safely so this would mainly be a SSE handler + `EventSource` on the frontend.
-- Dark mode (Tailwind `dark:` classes are already available, just needs a toggle that writes to `localStorage`).
-- Pagination on list endpoints (the backend already has `ListTasksFilter.Page/Limit` plumbed — just need to wire up the UI).
-- Project members concept — right now `GET /users` returns everyone. A `project_members` join table would scope the assignee picker properly.
-- Task comments / activity log.
-
-**Code quality**
-- Integration tests for the auth and task flows (I'd use `testcontainers-go` to spin up a real PostgreSQL instance per test run).
-- Frontend E2E tests with Playwright covering the happy path.
-- Move validation into a dedicated package / use a validation library to reduce repetition in handlers.
-- `created_by` is stored but not exposed on the task's response object in a human-readable form. Would add `creator: { id, name }` analogous to `assignee`.
-
-**Operations**
-- Structured request/response logging with correlation IDs for tracing.
-- `/healthz` and `/readyz` endpoints for Kubernetes probes.
-- Docker image pinning (currently using `golang:1.22-alpine` floating tag).
-- CI pipeline (GitHub Actions): lint → test → build → push image.
+---
+*Created with 'UI Genius' specifications for the Zomato Engineering Take-Home.*

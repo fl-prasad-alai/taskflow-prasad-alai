@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/taskflow/backend/internal/auth"
-	"github.com/taskflow/backend/internal/store"
+	"taskflow/backend/pkg/auth"
+	"taskflow/backend/pkg/store"
 	"golang.org/x/crypto/bcrypt"
 )
 

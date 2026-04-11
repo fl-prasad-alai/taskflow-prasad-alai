@@ -1,21 +1,34 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Folder, ChevronRight, BarChart3, CheckCircle2, Clock, Circle } from 'lucide-react';
 import { projectsApi } from '../lib/api';
 import type { Project } from '../types';
 import Navbar from '../components/Navbar';
-import LoadingSpinner from '../components/LoadingSpinner';
-import EmptyState from '../components/EmptyState';
+import GlassCard from '../components/GlassCard';
 import ProjectModal from '../components/ProjectModal';
+import { useTheme } from '../contexts/ThemeContext';
+import VitalityCore from '../components/VitalityCore';
+
+// ── Animation helpers ────────────────────────────────────────────────────────
+const FADE_UP = {
+  hidden: { opacity: 0, y: 14 },
+  show:   { opacity: 1, y: 0,  transition: { type: 'spring', stiffness: 300, damping: 26 } },
+};
+const STAGGER_GRID = {
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
+};
 
 export default function ProjectsPage() {
-  const qc = useQueryClient();
+  const qc       = useQueryClient();
   const navigate = useNavigate();
+  const { theme } = useTheme();
   const [modalOpen, setModalOpen] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => projectsApi.list(),
+    queryFn:  () => projectsApi.list(),
   });
 
   const createMutation = useMutation({
@@ -24,80 +37,182 @@ export default function ProjectsPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['projects'] }),
   });
 
-  const handleCreate = async (name: string, description: string) => {
-    await createMutation.mutateAsync({ name, description });
-  };
-
   const projects = data?.projects ?? [];
+  const totalProjects = projects.length;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className={`min-h-screen transition-colors duration-500 ${theme === 'green' ? 'bg-[#022c22]' : 'dark:bg-black bg-zinc-50'}`}>
       <Navbar />
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Projects</h1>
-            <p className="text-sm text-slate-500 mt-0.5">
-              Projects you own or have tasks in
-            </p>
-          </div>
-          <button
-            onClick={() => setModalOpen(true)}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+      <main className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-16">
+        
+        {/* ── Page header ─────────────────────────────────────────────────── */}
+        <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between mb-12 gap-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-8"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            New Project
-          </button>
+            <div className="hidden sm:block">
+              <VitalityCore status={projects.some(p => p.name.includes("Obsidian")) ? 'critical' : 'normal'} />
+            </div>
+            <div className="text-center lg:text-left">
+              <p className={`text-[10px] font-bold uppercase tracking-[0.3em] mb-2 ${theme === 'green' ? 'text-emerald-500/60' : 'text-zinc-500'}`}>
+                System Vitals
+              </p>
+              <h1 className="text-5xl font-black tracking-tighter text-zinc-900 dark:text-white font-heading">
+                Workspace
+              </h1>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2 font-medium">
+                Vanguard standard orchestration active.
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.button
+            onClick={() => setModalOpen(true)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="
+              flex items-center gap-2 px-6 py-3.5 rounded-2xl text-sm font-bold uppercase tracking-widest
+              bg-[#e11d48] text-white
+              shadow-xl shadow-[#e11d48]/20 transition-all duration-300
+            "
+          >
+            <Plus className="w-5 h-5" />
+            Initiate Project
+          </motion.button>
         </div>
 
-        {/* States */}
-        {isLoading && <LoadingSpinner />}
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 text-sm">
-            Failed to load projects. Please refresh.
-          </div>
-        )}
-
-        {!isLoading && !error && projects.length === 0 && (
-          <EmptyState
-            title="No projects yet"
-            description="Create your first project to start tracking tasks."
-            action={
-              <button
-                onClick={() => setModalOpen(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-              >
-                Create Project
-              </button>
-            }
-          />
-        )}
-
-        {/* Grid */}
-        {projects.length > 0 && (
+        {/* ── Loading skeleton ─────────────────────────────────────────────── */}
+        {isLoading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.map(p => (
-              <ProjectCard
-                key={p.id}
-                project={p}
-                onClick={() => navigate(`/projects/${p.id}`)}
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="h-44 rounded-2xl dark:bg-white/[.02] bg-black/[.03] animate-pulse"
+                style={{ animationDelay: `${i * 120}ms` }}
               />
             ))}
           </div>
+        )}
+
+        {/* ── Error state ───────────────────────────────────────────────────── */}
+        {error && (
+          <GlassCard className="border-red-500/20 bg-red-500/5">
+            <p className="text-sm text-red-400 px-1">
+              Failed to load projects. Please refresh.
+            </p>
+          </GlassCard>
+        )}
+
+        {/* ── Empty state ───────────────────────────────────────────────────── */}
+        {!isLoading && !error && projects.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center py-24 text-center"
+          >
+            <div className="w-16 h-16 rounded-2xl bg-[#e11d48]/10 border border-[#e11d48]/20 flex items-center justify-center mb-4">
+              <Folder className="w-7 h-7 text-[#e11d48]" />
+            </div>
+            <h3 className="text-base font-semibold dark:text-zinc-300 text-zinc-700 mb-1">No projects yet</h3>
+            <p className="text-sm dark:text-zinc-600 text-zinc-500 mb-6">Create your first project to start tracking work.</p>
+            <motion.button
+              onClick={() => setModalOpen(true)}
+              whileTap={{ scale: 0.96 }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-[#e11d48] text-white shadow-xl shadow-[#e11d48]/20 transition-colors"
+            >
+              <Plus className="w-4 h-4" /> New Project
+            </motion.button>
+          </motion.div>
+        )}
+
+        {/* ── Bento grid ───────────────────────────────────────────────────── */}
+        {projects.length > 0 && (
+          <>
+            {/* Summary row — 3 stat bento cells */}
+            <motion.div
+              variants={STAGGER_GRID}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-3 gap-3 mb-4"
+            >
+              <StatCell
+                icon={<BarChart3 className="w-4 h-4 text-violet-400" />}
+                label="Projects"
+                value={totalProjects}
+                color="violet"
+              />
+              <StatCell
+                icon={<Clock className="w-4 h-4 text-amber-400" />}
+                label="In Progress"
+                value={projects.length}
+                color="amber"
+                subtitle="last 7 days"
+              />
+              <StatCell
+                icon={<CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                label="Active"
+                value={projects.length}
+                color="emerald"
+              />
+            </motion.div>
+
+            {/* Project cards */}
+            <AnimatePresence>
+              <motion.div
+                variants={STAGGER_GRID}
+                initial="hidden"
+                animate="show"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+              >
+                {projects.map((p, i) => (
+                  <motion.div key={p.id} variants={FADE_UP} custom={i}>
+                    <ProjectCard
+                      project={p}
+                      onClick={() => navigate(`/projects/${p.id}`)}
+                    />
+                  </motion.div>
+                ))}
+              </motion.div>
+            </AnimatePresence>
+          </>
         )}
       </main>
 
       <ProjectModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSave={handleCreate}
+        onSave={async (name, description) => { await createMutation.mutateAsync({ name, description }); }}
       />
     </div>
+  );
+}
+
+// ── Sub-components ───────────────────────────────────────────────────────────
+
+function StatCell({
+  icon, label, value, color, subtitle,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  color: 'violet' | 'amber' | 'emerald';
+  subtitle?: string;
+}) {
+  const bg = { violet: 'bg-violet-500/8', amber: 'bg-amber-500/8', emerald: 'bg-emerald-500/8' }[color];
+  const border = { violet: 'border-violet-500/15', amber: 'border-amber-500/15', emerald: 'border-emerald-500/15' }[color];
+
+  return (
+    <GlassCard noHover padding="sm" className={`${bg} ${border}`}>
+      <div className="flex items-center gap-2 mb-1.5">
+        {icon}
+        <span className="text-xs dark:text-zinc-500 text-zinc-500 font-mono uppercase tracking-wider">{label}</span>
+      </div>
+      <p className="text-2xl font-bold dark:text-zinc-100 text-zinc-900 font-heading tracking-tight">{value}</p>
+      {subtitle && <p className="text-[10px] dark:text-zinc-600 text-zinc-400 mt-0.5">{subtitle}</p>}
+    </GlassCard>
   );
 }
 
@@ -107,28 +222,43 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
   });
 
   return (
-    <button
-      onClick={onClick}
-      className="text-left bg-white border border-slate-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-sm transition-all group"
-    >
-      <div className="flex items-start justify-between mb-3">
-        <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-          <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-              d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
-          </svg>
+    <GlassCard onClick={onClick} padding="none">
+      <div className="p-5">
+        <div className="flex items-start justify-between mb-4">
+          <div className="w-10 h-10 rounded-xl bg-[#e11d48]/10 border border-[#e11d48]/20 flex items-center justify-center shrink-0">
+            <Folder className="w-4.5 h-4.5 text-[#e11d48]" />
+          </div>
+          <ChevronRight className="w-4 h-4 dark:text-zinc-700 text-zinc-300 group-hover:text-[#e11d48] transition-colors mt-1" />
         </div>
-        <svg className="w-4 h-4 text-slate-300 group-hover:text-slate-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
+
+        <h3 className="font-bold dark:text-zinc-100 text-zinc-900 mb-1 leading-snug font-heading tracking-tight">
+          {project.name}
+        </h3>
+
+        {project.description ? (
+          <p className="text-xs dark:text-zinc-500 text-zinc-500 line-clamp-2 leading-relaxed mb-3">
+            {project.description}
+          </p>
+        ) : (
+          <p className="text-xs dark:text-zinc-700 text-zinc-400 italic mb-3">No description</p>
+        )}
+
+        {/* Progress bar placeholder */}
+        <div className="h-[2px] rounded-full dark:bg-white/[.05] bg-black/[.04] mb-3 overflow-hidden">
+          <motion.div
+            className="h-full bg-gradient-to-r from-[#e11d48] to-[#fb7185] rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: '0%' }}
+          />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span className="flex items-center gap-1 text-[10px] font-mono dark:text-zinc-600 text-zinc-400 uppercase tracking-widest">
+            <Circle className="w-2.5 h-2.5 fill-current" />
+            {date}
+          </span>
+        </div>
       </div>
-      <h3 className="font-semibold text-slate-800 group-hover:text-blue-700 transition-colors">
-        {project.name}
-      </h3>
-      {project.description && (
-        <p className="text-sm text-slate-500 mt-1 line-clamp-2">{project.description}</p>
-      )}
-      <p className="text-xs text-slate-400 mt-3">{date}</p>
-    </button>
+    </GlassCard>
   );
 }

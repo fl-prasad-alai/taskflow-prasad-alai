@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	appMiddleware "github.com/taskflow/backend/internal/middleware"
-	"github.com/taskflow/backend/internal/store"
+	appMiddleware "taskflow/backend/pkg/middleware"
+	"taskflow/backend/pkg/store"
 )
 
 // ListProjects returns projects the current user owns or has tasks in.

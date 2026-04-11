@@ -15,11 +15,11 @@ ENV CGO_ENABLED=0
 ENV GOOS=linux
 
 COPY go.mod ./
+COPY backend/ ./backend/
 RUN go mod tidy
 RUN go mod download
 
-COPY . .
-RUN go build -trimpath -ldflags="-s -w" -o /server ./cmd/server
+RUN go build -trimpath -ldflags="-s -w" -o /server ./backend/cmd/server
 
 # ── Runtime stage ─────────────────────────────────────────────────────────────
 FROM alpine:3.20
