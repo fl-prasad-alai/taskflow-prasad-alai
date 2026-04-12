@@ -32,11 +32,11 @@ func initApp() {
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	once.Do(initApp)
-	
-	if initErr != nil {
-		http.Error(w, "Init error: "+initErr.Error(), 500)
-		return
-	}
-	h.Router("").ServeHTTP(w, r)
+    once.Do(initApp)
+    if initErr != nil {
+        http.Error(w, "Init error: "+initErr.Error(), 500)
+        return
+    }
+    // Serve directly so Chi sees the full path (/api/auth/login or /projects)
+    h.Router("").ServeHTTP(w, r)
 }

@@ -3,8 +3,8 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index.go" },
     { "source": "/auth/(.*)", "destination": "/api/index.go" },
-    { "source": "/projects/(.*)", "destination": "/api/index.go" },
     { "source": "/projects", "destination": "/api/index.go" },
+    { "source": "/projects/(.*)", "destination": "/api/index.go" },
     { "source": "/((?!api/|auth/|projects).*)", "destination": "/index.html" }
   ]
 }
