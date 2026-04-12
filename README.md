@@ -1,6 +1,10 @@
 # TaskFlow — Engineering Take-Home Assignment
 ### Mid-level Engineer · Full Stack Project (Zomato Vanguard Edition)
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vanguard_V3-022c22?style=for-the-badge&logo=vercel&logoColor=white)](https://taskflow-prasad-alai.vercel.app/login)
+
+---
+
 ## 📸 Implementation Preview (The "Biophilic Vanguard")
 
 ### 🖥️ Desktop Experience (Dual-Theme Orchestration)
