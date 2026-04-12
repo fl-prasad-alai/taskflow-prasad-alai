@@ -35,7 +35,7 @@ func ensureReady(w http.ResponseWriter, r *http.Request) (*handler.Handler, bool
 
 	// If we have a handler, verify the DB is still reachable (2-second budget).
 	if appH != nil {
-		ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
 		if appS.Ping(ctx) == nil {
 			return appH, true
@@ -56,8 +56,10 @@ func ensureReady(w http.ResponseWriter, r *http.Request) (*handler.Handler, bool
 		return nil, false
 	}
 
-	// Use a short context for the initial connect — Vercel has a request timeout.
-	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
+	// Use a background context for store.New — the pool must outlive the
+	// single request that triggered initialisation, otherwise its background
+	// goroutines are cancelled the moment the request completes.
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	s, err := store.New(ctx, dbURL)
