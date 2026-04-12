@@ -38,6 +38,5 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to initialize: "+initErr.Error(), http.StatusInternalServerError)
 		return
 	}
-	router := h.Router("")
-	http.StripPrefix("/api", router).ServeHTTP(w, r)
+	h.Router("").ServeHTTP(w, r)
 }
