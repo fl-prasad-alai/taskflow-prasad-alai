@@ -6,6 +6,9 @@
     { "source": "/projects/(.*)", "destination": "/api/index.go" },
     { "source": "/tasks/(.*)", "destination": "/api/index.go" },
     { "source": "/users/(.*)", "destination": "/api/index.go" },
-    { "source": "/((?!api|auth|projects|tasks|users).*)", "destination": "/index.html" }
+    { "source": "/projects", "destination": "/api/index.go" },
+    { "source": "/tasks", "destination": "/api/index.go" },
+    { "source": "/users", "destination": "/api/index.go" },
+    { "source": "/((?!api/|auth/|projects|tasks|users).*)", "destination": "/index.html" }
   ]
 }
