@@ -3,7 +3,12 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index.go" },
     { "source": "/auth/(.*)", "destination": "/api/index.go" },
+    { "source": "/users/(.*)", "destination": "/api/index.go" },
+    { "source": "/users", "destination": "/api/index.go" },
+    { "source": "/projects/(.*)", "destination": "/api/index.go" },
     { "source": "/projects", "destination": "/api/index.go" },
-    { "source": "/((?!api/|auth/|projects).*)", "destination": "/index.html" }
+    { "source": "/tasks/(.*)", "destination": "/api/index.go" },
+    { "source": "/tasks", "destination": "/api/index.go" },
+    { "source": "/((?!api/|auth/|users|projects|tasks).*)", "destination": "/index.html" }
   ]
 }
