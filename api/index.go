@@ -35,7 +35,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	once.Do(initApp)
 	
 	if initErr != nil {
-		http.Error(w, "Failed to initialize: "+initErr.Error(), http.StatusInternalServerError)
+		http.Error(w, "Init error: "+initErr.Error(), 500)
 		return
 	}
 	h.Router("").ServeHTTP(w, r)
