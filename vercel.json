@@ -1,13 +1,9 @@
 {
   "version": 2,
   "rewrites": [
-    { 
-      "source": "/(api|auth|projects|tasks|users)(.*)", 
-      "destination": "/api/index.go" 
-    },
-    { 
-      "source": "/((?!api|auth|projects|tasks|users).*)", 
-      "destination": "/index.html" 
-    }
+    { "source": "/api/(.*)", "destination": "/api/index.go" },
+    { "source": "/auth/(.*)", "destination": "/api/index.go" },
+    { "source": "/projects", "destination": "/api/index.go" },
+    { "source": "/((?!api/|auth/|projects).*)", "destination": "/index.html" }
   ]
 }
