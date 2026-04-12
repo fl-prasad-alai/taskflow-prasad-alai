@@ -8,6 +8,7 @@ import (
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"taskflow/backend/migrations"
 
@@ -22,11 +23,27 @@ type Store struct {
 // New creates a Store backed by a connection pool. It retries the connection
 // up to maxRetries times to accommodate slow container start-ups.
 func New(ctx context.Context, databaseURL string) (*Store, error) {
-	var pool *pgxpool.Pool
-	var err error
+	cfg, err := pgxpool.ParseConfig(databaseURL)
+	if err != nil {
+		return nil, fmt.Errorf("parsing database URL: %w", err)
+	}
 
+	// Serverless-friendly pool settings:
+	//   • No minimum connections held open (avoids Supabase idle-killer)
+	//   • Connections recycled after 5 min (before most providers kill them)
+	//   • Health check on every acquire so stale connections are never used
+	cfg.MaxConns = 5
+	cfg.MinConns = 0
+	cfg.MaxConnIdleTime = 30 * time.Second
+	cfg.MaxConnLifetime = 5 * time.Minute
+	cfg.HealthCheckPeriod = 30 * time.Second
+	cfg.BeforeAcquire = func(ctx context.Context, conn *pgx.Conn) bool {
+		return conn.Ping(ctx) == nil
+	}
+
+	var pool *pgxpool.Pool
 	for i := range 10 {
-		pool, err = pgxpool.New(ctx, databaseURL)
+		pool, err = pgxpool.NewWithConfig(ctx, cfg)
 		if err == nil {
 			if pingErr := pool.Ping(ctx); pingErr == nil {
 				break
@@ -44,6 +61,11 @@ func New(ctx context.Context, databaseURL string) (*Store, error) {
 	}
 
 	return &Store{pool: pool}, nil
+}
+
+// Ping verifies that the database is reachable.
+func (s *Store) Ping(ctx context.Context) error {
+	return s.pool.Ping(ctx)
 }
 
 // Close releases all pool connections.
