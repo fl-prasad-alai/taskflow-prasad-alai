@@ -34,12 +34,21 @@ func New(ctx context.Context, databaseURL string) (*Store, error) {
 	//   • Health check on every acquire so stale connections are never used
 	cfg.MaxConns = 5
 	cfg.MinConns = 0
+	// Close idle connections after 30s so Supabase's idle-connection killer
+	// (which fires around 60s on the free tier) never sees them.
 	cfg.MaxConnIdleTime = 30 * time.Second
+	// Force-recycle after 5 min regardless of activity.
 	cfg.MaxConnLifetime = 5 * time.Minute
+	// Let the pool proactively detect dead connections in the background.
 	cfg.HealthCheckPeriod = 30 * time.Second
-	cfg.BeforeAcquire = func(ctx context.Context, conn *pgx.Conn) bool {
-		return conn.Ping(ctx) == nil
-	}
+	// NOTE: do NOT set BeforeAcquire with conn.Ping — that runs a prepared
+	// statement under the hood which Supabase's PgBouncer (port 6543, tx mode)
+	// rejects, causing every connection acquire to fail.
+	//
+	// Use simple-protocol queries (no server-side prepared statements) so the
+	// pool works correctly with both a direct Postgres connection AND Supabase's
+	// PgBouncer endpoint.  This is safe for all query types used in this app.
+	cfg.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
 	var pool *pgxpool.Pool
 	for i := range 10 {
