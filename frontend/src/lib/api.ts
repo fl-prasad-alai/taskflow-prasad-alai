@@ -8,7 +8,7 @@ import type {
   UserSummary,
 } from '../types';
 
-const BASE_URL = '';  // relative — handled by Vite proxy (dev) or nginx (prod)
+const BASE_URL = '/api';  // Vite proxy strips /api in dev; Vercel routes /api/* to serverless fn
 
 class ApiError extends Error {
   status: number;

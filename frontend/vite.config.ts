@@ -7,10 +7,12 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/auth':     { target: 'http://localhost:8080', changeOrigin: true },
-      '/projects': { target: 'http://localhost:8080', changeOrigin: true },
-      '/tasks':    { target: 'http://localhost:8080', changeOrigin: true },
-      '/users':    { target: 'http://localhost:8080', changeOrigin: true },
+      // Strip /api prefix and forward to local backend (mirrors what Vercel does in prod)
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
     },
   },
   build: {
