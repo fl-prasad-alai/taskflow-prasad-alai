@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"sync"
@@ -36,7 +37,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	
 	if initErr != nil {
 		http.Error(w, "Failed to initialize: "+initErr.Error(), http.StatusInternalServerError)
+		log.Printf("Init error: %v", initErr)
 		return
 	}
+
+	// Route traffic through the Chi router
 	h.Router("").ServeHTTP(w, r)
 }
