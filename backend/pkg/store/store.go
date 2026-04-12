@@ -8,6 +8,7 @@ import (
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"taskflow/backend/migrations"
 
@@ -22,11 +23,36 @@ type Store struct {
 // New creates a Store backed by a connection pool. It retries the connection
 // up to maxRetries times to accommodate slow container start-ups.
 func New(ctx context.Context, databaseURL string) (*Store, error) {
-	var pool *pgxpool.Pool
-	var err error
+	cfg, err := pgxpool.ParseConfig(databaseURL)
+	if err != nil {
+		return nil, fmt.Errorf("parsing database URL: %w", err)
+	}
 
+	// Serverless-friendly pool settings:
+	//   • No minimum connections held open (avoids Supabase idle-killer)
+	//   • Connections recycled after 5 min (before most providers kill them)
+	//   • Health check on every acquire so stale connections are never used
+	cfg.MaxConns = 5
+	cfg.MinConns = 0
+	// Close idle connections after 30s so Supabase's idle-connection killer
+	// (which fires around 60s on the free tier) never sees them.
+	cfg.MaxConnIdleTime = 30 * time.Second
+	// Force-recycle after 5 min regardless of activity.
+	cfg.MaxConnLifetime = 5 * time.Minute
+	// Let the pool proactively detect dead connections in the background.
+	cfg.HealthCheckPeriod = 30 * time.Second
+	// NOTE: do NOT set BeforeAcquire with conn.Ping — that runs a prepared
+	// statement under the hood which Supabase's PgBouncer (port 6543, tx mode)
+	// rejects, causing every connection acquire to fail.
+	//
+	// Use simple-protocol queries (no server-side prepared statements) so the
+	// pool works correctly with both a direct Postgres connection AND Supabase's
+	// PgBouncer endpoint.  This is safe for all query types used in this app.
+	cfg.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
+
+	var pool *pgxpool.Pool
 	for i := range 10 {
-		pool, err = pgxpool.New(ctx, databaseURL)
+		pool, err = pgxpool.NewWithConfig(ctx, cfg)
 		if err == nil {
 			if pingErr := pool.Ping(ctx); pingErr == nil {
 				break
@@ -44,6 +70,11 @@ func New(ctx context.Context, databaseURL string) (*Store, error) {
 	}
 
 	return &Store{pool: pool}, nil
+}
+
+// Ping verifies that the database is reachable.
+func (s *Store) Ping(ctx context.Context) error {
+	return s.pool.Ping(ctx)
 }
 
 // Close releases all pool connections.

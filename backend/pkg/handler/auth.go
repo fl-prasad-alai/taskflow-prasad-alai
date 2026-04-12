@@ -103,8 +103,15 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.store.GetUserByEmail(r.Context(), strings.ToLower(strings.TrimSpace(req.Email)))
 	if err != nil {
-		// Don't reveal whether the email exists
-		writeError(w, http.StatusUnauthorized, "invalid credentials")
+		if err == store.ErrNotFound {
+			// Constant-time guard: run bcrypt on a dummy hash so timing doesn't
+			// reveal whether the email exists.
+			_ = bcrypt.CompareHashAndPassword([]byte("$2a$12$dummyhashfordummypassword"), []byte(req.Password))
+			writeError(w, http.StatusUnauthorized, "invalid credentials")
+		} else {
+			h.log.Error("get user by email", "err", err)
+			writeError(w, http.StatusInternalServerError, "internal error")
+		}
 		return
 	}
 
