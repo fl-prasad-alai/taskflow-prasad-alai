@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -11,6 +12,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
+        <Analytics />
         {/* Grain texture overlay — adds film-grain depth in dark mode */}
         <div className="grain dark:block hidden" aria-hidden="true" />
 
